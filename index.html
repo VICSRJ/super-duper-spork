@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d0c">
+  <meta name="description" content="Botanic Warehouse — lehký skladový systém pro pytle, boxy a pozice.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b0d0c'/%3E%3Cpath d='M20 44c11-1 22-9 25-25-12 1-22 7-25 25Z' fill='%23d9f99d'/%3E%3Cpath d='M22 42c5-8 10-13 21-20' stroke='%230b0d0c' stroke-width='3' fill='none'/%3E%3C/svg%3E">
+  <title>Botanic Warehouse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><div class="brand-mark">B</div><div><strong>BOTANIC</strong><span>WAREHOUSE</span></div></div>
+      <nav class="nav" aria-label="Hlavní navigace">
+        <button class="nav-item active" data-view="dashboard"><span>⌂</span> Přehled</button>
+        <button class="nav-item" data-view="inventory"><span>▤</span> Zásoby</button>
+        <button class="nav-item" data-view="materials"><span>◫</span> Suroviny</button>
+        <button class="nav-item" data-view="warehouse"><span>⌗</span> Pozice</button>
+        <button class="nav-item" data-view="movements"><span>↕</span> Pohyby</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-item" id="btnImport"><span>↑</span> Import XLSX</button>
+        <button class="nav-item" id="btnExport"><span>↓</span> Export XLSX</button>
+        <button class="nav-item" id="btnReset"><span>↻</span> Reset demo dat</button>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn mobile-only" id="menuToggle" aria-label="Menu">☰</button>
+        <div class="search-wrap"><span>⌕</span><input id="globalSearch" placeholder="Hledat pytel, surovinu, box nebo pozici…" autocomplete="off"></div>
+        <div class="top-actions"><button class="icon-btn" id="refreshBtn" title="Přepočítat přehled">↻</button><button class="primary-btn" id="quickReceive">＋ Příjem</button></div>
+      </header>
+      <div class="content">
+        <section id="view-dashboard" class="view active"></section>
+        <section id="view-inventory" class="view"></section>
+        <section id="view-materials" class="view"></section>
+        <section id="view-warehouse" class="view"></section>
+        <section id="view-movements" class="view"></section>
+      </div>
+    </main>
+  </div>
+  <dialog id="actionDialog" class="dialog"></dialog>
+  <input type="file" id="fileInput" accept=".xlsx,.xls" hidden>
+  <div class="toast-stack" id="toastStack"></div>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
