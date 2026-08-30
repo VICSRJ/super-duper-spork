@@ -1,84 +1,91 @@
-/* Framework7 iOS adapter — lightweight native-like shell for the existing WMS DOM. */
+/* Clear glass tables — lightweight iOS/Framework7 inspired */
 :root{
-  --f7-theme-color:#007aff;
-  --f7-ios-primary:#007aff;
-  --f7-ios-primary-shade:#006fe6;
-  --f7-ios-primary-tint:#338fff;
-  --f7-ios-bg-color:#f2f2f7;
-  --ios-radius:16px;
-  --ios-separator:rgba(60,60,67,.18);
+  --glass-bg:rgba(255,255,255,.045);
+  --glass-bg-strong:rgba(255,255,255,.065);
+  --glass-border:rgba(255,255,255,.105);
+  --glass-highlight:rgba(255,255,255,.14);
+  --glass-shadow:0 10px 32px rgba(0,0,0,.14);
 }
 
-*,*::before,*::after{ -webkit-tap-highlight-color:transparent; }
-
-/* Framework7-like native action buttons, mapped to the app's existing classes. */
-.btn,.primary-btn,.ghost-btn,.icon-btn,.mini-btn{
-  font:inherit;
-  appearance:none;
-  -webkit-appearance:none;
-  border-radius:12px;
-  min-height:40px;
-  transition:transform .14s ease,background-color .14s ease,color .14s ease,border-color .14s ease,box-shadow .14s ease,opacity .14s ease;
+.table-card{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025))!important;
+  border:1px solid var(--glass-border)!important;
+  box-shadow:var(--glass-shadow)!important;
+  backdrop-filter:blur(18px) saturate(145%);
+  -webkit-backdrop-filter:blur(18px) saturate(145%);
 }
-.primary-btn,.btn.primary{
-  background:var(--f7-ios-primary)!important;
-  border:1px solid var(--f7-ios-primary)!important;
-  color:#fff!important;
-  box-shadow:0 1px 2px rgba(0,0,0,.08),0 5px 16px rgba(0,122,255,.14);
+.table-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,.08),transparent 28%,transparent 72%,rgba(255,255,255,.025));
 }
-.primary-btn:hover,.btn.primary:hover{background:var(--f7-ios-primary-shade)!important;transform:translateY(-1px)}
-.primary-btn:active,.btn.primary:active,.mini-btn:active,.ghost-btn:active,.icon-btn:active{transform:scale(.98)}
-.ghost-btn,.icon-btn,.mini-btn{
-  background:rgba(118,118,128,.10);
-  border:1px solid transparent;
-  color:inherit;
+.table-toolbar{
+  position:relative;
+  z-index:1;
+  background:rgba(255,255,255,.025)!important;
+  border-bottom:1px solid rgba(255,255,255,.075)!important;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
 }
-.ghost-btn:hover,.icon-btn:hover,.mini-btn:hover{background:rgba(118,118,128,.16)}
-
-/* iOS group / card surfaces. */
-.card,.table-card,.kpi,.dialog{border-radius:var(--ios-radius)}
-.card,.table-card,.kpi{box-shadow:0 1px 2px rgba(0,0,0,.06),0 7px 24px rgba(0,0,0,.045)}
-.table-card{overflow:hidden}
-.table th{font-weight:600}
-.table td{border-bottom-color:var(--line)}
-.table tbody tr:active{background:rgba(0,122,255,.06)}
-
-/* iOS-style fields. */
-.search,.filter-input,.filter-select,.modal-form input,.modal-form select,.count-input{
-  border-radius:11px;
+.table-wrap{position:relative;z-index:1}
+.table{background:transparent!important}
+.table th{
+  background:rgba(255,255,255,.035)!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+  color:var(--muted);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
 }
-.search:focus-within,.filter-input:focus,.filter-select:focus,.modal-form input:focus,.modal-form select:focus,.count-input:focus{
-  border-color:var(--f7-ios-primary)!important;
-  box-shadow:0 0 0 3px rgba(0,122,255,.14)!important;
+.table td{
+  background:rgba(255,255,255,.012);
+  border-bottom:1px solid rgba(255,255,255,.055)!important;
+}
+.table tbody tr{transition:background .16s ease,transform .16s ease}
+.table tbody tr:hover{background:rgba(255,255,255,.04)!important}
+.table tbody tr:active{background:rgba(0,122,255,.08)!important}
+
+/* Subtle glass controls */
+.search,.filter-input,.filter-select,.count-input,.modal-form input,.modal-form select{
+  background:rgba(255,255,255,.045)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.search:focus-within,.filter-input:focus,.filter-select:focus,.count-input:focus,.modal-form input:focus,.modal-form select:focus{
+  border-color:#007aff!important;
+  box-shadow:0 0 0 3px rgba(0,122,255,.14),inset 0 1px 0 rgba(255,255,255,.06)!important;
 }
 
-.page-head h1,.kpi-value,.modal-form h2{letter-spacing:-.025em}
-.eyebrow{letter-spacing:.08em}
-.badge{font-weight:600;min-height:24px}
-
-/* Keep the existing WMS palette, but use Framework7-style system surfaces in light mode. */
+/* Light glass */
 html[data-theme="light"]{
-  --bg:#f2f2f7;
-  --panel:#fff;
-  --panel2:#fff;
-  --line:rgba(60,60,67,.16);
-  --text:#1c1c1e;
-  --muted:#6e6e73;
-  --accent:#007aff;
-  --shadow-soft:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);
+  --glass-bg:rgba(255,255,255,.58);
+  --glass-bg-strong:rgba(255,255,255,.72);
+  --glass-border:rgba(60,60,67,.13);
+  --glass-highlight:rgba(255,255,255,.78);
+  --glass-shadow:0 10px 28px rgba(27,37,29,.08);
 }
-html[data-theme="light"] .sidebar{background:rgba(249,249,249,.94);backdrop-filter:blur(20px);border-right-color:var(--ios-separator)}
-html[data-theme="light"] .topbar{background:rgba(249,249,249,.82);backdrop-filter:blur(20px);border-bottom-color:var(--ios-separator)}
-html[data-theme="light"] .search,html[data-theme="light"] .filter-input,html[data-theme="light"] .filter-select,html[data-theme="light"] .modal-form input,html[data-theme="light"] .modal-form select,html[data-theme="light"] .count-input{background:#fff;color:#1c1c1e}
-html[data-theme="light"] .primary-btn,html[data-theme="light"] .btn.primary{background:#007aff!important;border-color:#007aff!important;color:#fff!important}
-html[data-theme="light"] .ghost-btn,html[data-theme="light"] .icon-btn,html[data-theme="light"] .mini-btn{background:rgba(118,118,128,.10);color:#1c1c1e}
+html[data-theme="light"] .table-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.76),rgba(255,255,255,.52))!important;
+}
+html[data-theme="light"] .table-card::before{
+  background:linear-gradient(115deg,rgba(255,255,255,.72),transparent 30%,transparent 72%,rgba(255,255,255,.3));
+}
+html[data-theme="light"] .table-toolbar{background:rgba(255,255,255,.42)!important;border-bottom-color:rgba(60,60,67,.10)!important}
+html[data-theme="light"] .table th{background:rgba(248,248,250,.65)!important;border-bottom-color:rgba(60,60,67,.11)!important;color:#6e6e73}
+html[data-theme="light"] .table td{background:rgba(255,255,255,.12);border-bottom-color:rgba(60,60,67,.08)!important}
+html[data-theme="light"] .table tbody tr:hover{background:rgba(255,255,255,.42)!important}
+html[data-theme="light"] .search,html[data-theme="light"] .filter-input,html[data-theme="light"] .filter-select,html[data-theme="light"] .count-input,html[data-theme="light"] .modal-form input,html[data-theme="light"] .modal-form select{
+  background:rgba(255,255,255,.68)!important;
+  border-color:rgba(60,60,67,.12)!important;
+  color:#1c1c1e;
+}
 
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
-}
 @media(max-width:650px){
-  .content{padding:12px}
-  .card,.table-card,.kpi{border-radius:14px}
-  .primary-btn,.btn.primary{min-height:42px}
-  .mini-btn{min-height:36px}
+  .table-card{border-radius:15px}
+  .table th,.table td{padding:11px 12px}
 }
