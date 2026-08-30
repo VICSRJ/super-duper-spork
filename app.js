@@ -1,67 +1,233 @@
-const STORAGE_KEY = 'botanic-wms-v1';
+const STORAGE_KEY = 'botanic-wms-v2';
+const QUEUE_KEY = 'botanic-wms-sync-queue-v1';
 const state = { view: 'dashboard', query: '', filters: { material: 'ALL', status: 'ALL' } };
+
 const seed = {
+  meta: { schemaVersion: 2, nextPack: 8, nextMovement: 6 },
   materials: [
-    {id:'S-001',name:'Bazalka',unit:'g',min:5000},{id:'S-002',name:'Mäta',unit:'g',min:4000},{id:'S-003',name:'Rozmarýn',unit:'g',min:3500},{id:'S-004',name:'Levandule',unit:'g',min:2500},{id:'S-005',name:'Meduňka',unit:'g',min:3000}
+    { id: 'S-001', name: 'Ashwagandha KSM-66', unit: 'g', min: 5000 },
+    { id: 'S-002', name: 'Boswellia serrata (Boswellin® HBD)', unit: 'g', min: 4000 },
+    { id: 'S-003', name: 'Rozchodnice růžová (Rhodiola rosea)', unit: 'g', min: 3500 },
+    { id: 'S-004', name: 'Kotvičník zemní (Tribulus terrestris)', unit: 'g', min: 2500 },
+    { id: 'S-005', name: 'Maca', unit: 'g', min: 3000 }
   ],
-  boxes: Array.from({length:17},(_,i)=>({id:`B-${i+1}`})),
-  positions: Array.from({length:4},(_,r)=>Array.from({length:10},(_,c)=>({id:`${String.fromCharCode(65+r)}${c+1}`}))).flat(),
+  boxes: Array.from({ length: 20 }, (_, i) => ({ id: `B-${i + 1}` })),
+  positions: Array.from({ length: 4 }, (_, r) => Array.from({ length: 10 }, (_, c) => ({ id: `${String.fromCharCode(65 + r)}${c + 1}` }))).flat(),
   packs: [
-    {id:'P-2026-001',material:'S-001',lot:'BA-260801',received:'2026-08-01',expiry:'2027-08-01',qty:2400,box:'B-1',position:'A1',packState:'original'},
-    {id:'P-2026-002',material:'S-001',lot:'BA-260812',received:'2026-08-12',expiry:'2027-08-12',qty:1800,box:'B-2',position:'A2',packState:'opened'},
-    {id:'P-2026-003',material:'S-002',lot:'ME-260802',received:'2026-08-02',expiry:'2027-08-02',qty:4100,box:'B-3',position:'A3',packState:'original'},
-    {id:'P-2026-004',material:'S-003',lot:'RO-260805',received:'2026-08-05',expiry:'2027-08-05',qty:3200,box:'B-4',position:'B1',packState:'original'},
-    {id:'P-2026-005',material:'S-004',lot:'LE-260808',received:'2026-08-08',expiry:'2027-08-08',qty:2100,box:'B-5',position:'B2',packState:'opened'},
-    {id:'P-2026-006',material:'S-005',lot:'ME-260810',received:'2026-08-10',expiry:'2027-08-10',qty:2900,box:'B-6',position:'B3',packState:'original'},
-    {id:'P-2026-007',material:'S-002',lot:'ME-260818',received:'2026-08-18',expiry:'2027-08-18',qty:2200,box:'B-7',position:'C1',packState:'original'}
+    { id: 'P-2026-001', material: 'S-001', lot: 'AK66-260801', received: '2026-08-01', expiry: '2027-08-01', qty: 2400, initialQty: 2400, box: 'B-1', position: 'A1', packState: 'original' },
+    { id: 'P-2026-002', material: 'S-001', lot: 'AK66-260812', received: '2026-08-12', expiry: '2027-08-12', qty: 1800, initialQty: 2100, box: 'B-2', position: 'A2', packState: 'opened' },
+    { id: 'P-2026-003', material: 'S-002', lot: 'BS-260802', received: '2026-08-02', expiry: '2027-08-02', qty: 4100, initialQty: 4100, box: 'B-3', position: 'A3', packState: 'original' },
+    { id: 'P-2026-004', material: 'S-003', lot: 'RR-260805', received: '2026-08-05', expiry: '2027-08-05', qty: 3200, initialQty: 3200, box: 'B-4', position: 'B1', packState: 'original' },
+    { id: 'P-2026-005', material: 'S-004', lot: 'KT-260808', received: '2026-08-08', expiry: '2027-08-08', qty: 2100, initialQty: 2100, box: 'B-5', position: 'B2', packState: 'opened' },
+    { id: 'P-2026-006', material: 'S-005', lot: 'MA-260810', received: '2026-08-10', expiry: '2027-08-10', qty: 2900, initialQty: 2900, box: 'B-6', position: 'B3', packState: 'original' },
+    { id: 'P-2026-007', material: 'S-002', lot: 'BS-260818', received: '2026-08-18', expiry: '2027-08-18', qty: 2200, initialQty: 2200, box: 'B-7', position: 'C1', packState: 'original' }
   ],
   movements: [
-    {id:'M-001',date:'2026-08-30T08:50:00',type:'Příjem',pack:'P-2026-007',qty:2200,from:'Příjem',to:'C1'},
-    {id:'M-002',date:'2026-08-30T08:10:00',type:'Výdej',pack:'P-2026-002',qty:-300,from:'A2',to:'Výdej'},
-    {id:'M-003',date:'2026-08-29T16:31:00',type:'Přesun',pack:'P-2026-005',qty:0,from:'A4',to:'B2'},
-    {id:'M-004',date:'2026-08-29T13:05:00',type:'Výdej',pack:'P-2026-001',qty:-400,from:'A1',to:'Výdej'},
-    {id:'M-005',date:'2026-08-28T11:40:00',type:'Příjem',pack:'P-2026-006',qty:2900,from:'Příjem',to:'B3'}
+    { id: 'M-001', date: '2026-08-30T08:50:00', type: 'Příjem', pack: 'P-2026-007', qty: 2200, from: 'Příjem', to: 'C1', reason: 'Příjem zásoby', user: 'local' },
+    { id: 'M-002', date: '2026-08-30T08:10:00', type: 'Výdej', pack: 'P-2026-002', qty: -300, from: 'A2', to: 'Výdej', reason: 'Výdej', user: 'local' },
+    { id: 'M-003', date: '2026-08-29T16:31:00', type: 'Přesun', pack: 'P-2026-005', qty: 0, from: 'A4', to: 'B2', reason: 'Změna pozice', user: 'local' },
+    { id: 'M-004', date: '2026-08-29T13:05:00', type: 'Výdej', pack: 'P-2026-001', qty: -400, from: 'A1', to: 'Výdej', reason: 'Výdej', user: 'local' },
+    { id: 'M-005', date: '2026-08-28T11:40:00', type: 'Příjem', pack: 'P-2026-006', qty: 2900, from: 'Příjem', to: 'B3', reason: 'Příjem zásoby', user: 'local' }
   ]
 };
+
 let data = loadData();
-function loadData(){try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):structuredClone(seed)}catch{return structuredClone(seed)}}
-function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));render()}
-function money(n){return new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:0}).format(n)}
-function dateTime(v){return new Intl.DateTimeFormat('cs-CZ',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(v))}
-function material(id){return data.materials.find(m=>m.id===id)}
-function materialName(id){return material(id)?.name||id}
-function stock(){return data.packs.reduce((s,p)=>s+p.qty,0)}
-function activePacks(){return data.packs.filter(p=>p.qty>0)}
-function stockByMaterial(id){return data.packs.filter(p=>p.material===id).reduce((s,p)=>s+p.qty,0)}
-function statusForPack(p){if(p.qty<=0)return ['VYČERPÁNO','danger'];if(p.expiry&&new Date(p.expiry)<new Date())return ['EXPIRACE','danger'];if(p.qty<500)return ['NÍZKÁ','warn'];return ['OK','ok']}
-function recentMovements(limit=8){return [...data.movements].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,limit)}
-function esc(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-function toast(msg,error=false){const el=document.createElement('div');el.className='toast'+(error?' error':'');el.textContent=msg;document.getElementById('toastStack').appendChild(el);setTimeout(()=>el.remove(),2600)}
-function render(){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+state.view).classList.add('active');document.querySelectorAll('.nav-item[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));if(state.view==='dashboard')renderDashboard();if(state.view==='inventory')renderInventory();if(state.view==='materials')renderMaterials();if(state.view==='warehouse')renderWarehouse();if(state.view==='movements')renderMovements()}
-function renderDashboard(){const low=data.packs.filter(p=>p.qty>0&&p.qty<500).length;document.getElementById('view-dashboard').innerHTML=`<div class="page-head"><div><div class="eyebrow">Botanic WMS / Přehled</div><h1>Sklad pod kontrolou.</h1><div class="sub">Pytle jsou primární jednotka. Váha je vedena vždy v gramech.</div></div><div class="head-actions"><button class="ghost-btn" onclick="setView('warehouse')">Mapa skladu</button><button class="primary-btn" onclick="openReceive()">＋ Příjem materiálu</button></div></div><div class="kpis"><div class="kpi"><div class="kpi-label">Aktuální zásoba</div><div class="kpi-value mono">${money(stock())} g</div><div class="kpi-foot">${money(stock()/1000)} kg celkem</div></div><div class="kpi"><div class="kpi-label">Aktivní pytle</div><div class="kpi-value">${activePacks().length}</div><div class="kpi-foot">${low} položky vyžadují pozornost</div></div><div class="kpi"><div class="kpi-label">Suroviny</div><div class="kpi-value">${data.materials.length}</div><div class="kpi-foot">napříč ${data.positions.length} pozicemi</div></div><div class="kpi"><div class="kpi-label">Dnešní pohyby</div><div class="kpi-value">${data.movements.filter(m=>m.date.slice(0,10)===new Date().toISOString().slice(0,10)).length}</div><div class="kpi-foot">historie je append-only</div></div></div><div class="grid-2"><div class="card"><div class="card-head"><strong>Zásoba podle suroviny</strong><small>${money(stock())} g</small></div>${data.materials.map(m=>{const q=stockByMaterial(m.id),pct=Math.min(100,q/Math.max(m.min*3,1)*100);return `<div style="margin:0 0 15px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px"><span>${esc(m.name)}</span><span class="mono">${money(q)} g</span></div><div class="progress"><span style="width:${pct}%"></span></div><div style="display:flex;justify-content:space-between;color:#68736c;font-size:10px;margin-top:4px"><span>minimum ${money(m.min)} g</span><span>${q<m.min?'doplnit':''}</span></div></div>`}).join('')}</div><div class="card"><div class="card-head"><strong>Poslední pohyby</strong><button class="ghost-btn" onclick="setView('movements')">Vše</button></div><div class="timeline">${recentMovements(7).map(movementRow).join('')}</div></div></div>`}
-function movementRow(m){const plus=m.qty>0;return `<div class="event"><time>${dateTime(m.date)}</time><div class="event-title"><strong>${esc(m.type)}</strong> · <span class="mono">${esc(m.pack)}</span><small>${esc(m.from)} → ${esc(m.to)}</small></div><div class="qty ${plus?'plus':m.qty<0?'minus':''}">${m.qty===0?'—':(plus?'+':'')+money(m.qty)+' g'}</div></div>`}
-function renderInventory(){const q=(state.query||'').toLowerCase();const packs=data.packs.filter(p=>{const hay=[p.id,p.lot,p.box,p.position,materialName(p.material)].join(' ').toLowerCase();const status=statusForPack(p)[0];return(!q||hay.includes(q))&&(state.filters.material==='ALL'||p.material===state.filters.material)&&(state.filters.status==='ALL'||status===state.filters.status)}).sort((a,b)=>a.received.localeCompare(b.received));document.getElementById('view-inventory').innerHTML=`<div class="page-head"><div><div class="eyebrow">Sklad / Pytle</div><h1>Zásoby</h1><div class="sub">FIFO řazení podle data příjmu. Výdej vždy doporučuje nejstarší aktivní šarži.</div></div><div class="head-actions"><button class="primary-btn" onclick="openReceive()">＋ Příjem</button></div></div><div class="table-card"><div class="table-toolbar"><input class="filter-input" placeholder="Hledat v zásobách…" value="${esc(state.query)}" oninput="state.query=this.value;renderInventory()"><select class="filter-select" onchange="state.filters.material=this.value;renderInventory()"><option value="ALL">Všechny suroviny</option>${data.materials.map(m=>`<option value="${m.id}" ${state.filters.material===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}</select><select class="filter-select" onchange="state.filters.status=this.value;renderInventory()"><option value="ALL">Všechny stavy</option><option ${state.filters.status==='OK'?'selected':''}>OK</option><option ${state.filters.status==='NÍZKÁ'?'selected':''}>NÍZKÁ</option><option ${state.filters.status==='VYČERPÁNO'?'selected':''}>VYČERPÁNO</option><option ${state.filters.status==='EXPIRACE'?'selected':''}>EXPIRACE</option></select></div><div class="table-wrap"><table class="table"><thead><tr><th>Pytel</th><th>Surovina</th><th>Šarže</th><th>Pozice</th><th>Stav balení</th><th>Expirace</th><th>Množství</th><th>Stav</th><th></th></tr></thead><tbody>${packs.length?packs.map(inventoryRow).join(''):`<tr><td colspan="9"><div class="empty">Nic nenalezeno.</div></td></tr>`}</tbody></table></div></div>`}
-function inventoryRow(p){const[st,cl]=statusForPack(p);return `<tr><td class="mono"><strong>${esc(p.id)}</strong></td><td>${esc(materialName(p.material))}</td><td class="mono">${esc(p.lot)}</td><td><span class="badge accent">${esc(p.position)}</span> <span style="color:#6f7a72;font-size:11px">${esc(p.box)}</span></td><td>${p.packState==='original'?'Originál':'Otevřený'}</td><td>${esc(p.expiry)}</td><td class="mono"><strong>${money(p.qty)} g</strong></td><td><span class="badge ${cl}">${st}</span></td><td><div class="actions"><button class="mini-btn" onclick="openIssue('${p.id}')">Výdej</button><button class="mini-btn" onclick="openMove('${p.id}')">Přesun</button></div></td></tr>`}
-function renderMaterials(){const rows=data.materials.map(m=>{const q=stockByMaterial(m.id),count=data.packs.filter(p=>p.material===m.id&&p.qty>0).length;return `<tr><td class="mono"><strong>${m.id}</strong></td><td><strong>${esc(m.name)}</strong></td><td>${count}</td><td class="mono">${money(q)} g</td><td class="mono">${money(m.min)} g</td><td>${q<m.min?'<span class="badge danger">NÍZKÁ ZÁSOBA</span>':'<span class="badge ok">OK</span>'}</td><td><div class="progress" style="min-width:130px"><span style="width:${Math.min(100,q/Math.max(m.min,1)*100)}%"></span></div></td></tr>`}).join('');document.getElementById('view-materials').innerHTML=`<div class="page-head"><div><div class="eyebrow">Katalog</div><h1>Suroviny</h1><div class="sub">Centrální katalog materiálů a jejich minimálních zásob.</div></div><div class="head-actions"><button class="primary-btn" onclick="openMaterial()">＋ Surovina</button></div></div><div class="table-card"><div class="table-wrap"><table class="table"><thead><tr><th>ID</th><th>Název</th><th>Aktivní pytle</th><th>Zásoba</th><th>Minimum</th><th>Stav</th><th>Naplnění</th></tr></thead><tbody>${rows}</tbody></table></div></div>`}
-function renderWarehouse(){const slots=data.positions.map(pos=>{const packs=data.packs.filter(p=>p.position===pos.id&&p.qty>0),q=packs.reduce((s,p)=>s+p.qty,0);return `<button class="slot ${q?'has-stock':'empty-slot'}" onclick="${packs.length?`openSlot('${pos.id}')`:''}"><span class="slot-id">${pos.id}</span>${q?`<><i class="dot"></i><strong>${money(q)} g</strong><small>${packs.length} pytle</small></>`:`<small>volná pozice</small>`}</button>`}).join('');document.getElementById('view-warehouse').innerHTML=`<div class="page-head"><div><div class="eyebrow">Sklad / Mapa</div><h1>Pozice</h1><div class="sub">A1–D10 · kliknutím otevřete detail obsazené pozice.</div></div><div class="head-actions"><button class="ghost-btn" onclick="openReceive()">＋ Přidat pytel</button></div></div><div class="card"><div class="card-head"><strong>Mapa skladu</strong><small>${activePacks().length} aktivních pytlů</small></div><div class="map-grid">${slots}</div></div>`}
-function renderMovements(){const rows=recentMovements(100).filter(m=>{const q=state.query.toLowerCase();return!q||[m.id,m.type,m.pack,m.from,m.to,materialName(data.packs.find(p=>p.id===m.pack)?.material)].join(' ').toLowerCase().includes(q)}).map(m=>`<tr><td class="mono">${m.id}</td><td>${dateTime(m.date)}</td><td><span class="badge ${m.type==='Příjem'?'ok':m.type==='Výdej'?'danger':'accent'}">${m.type}</span></td><td class="mono">${m.pack}</td><td>${m.from}</td><td>${m.to}</td><td class="mono">${m.qty>0?'+':''}${m.qty?money(m.qty)+' g':'—'}</td></tr>`).join('');document.getElementById('view-movements').innerHTML=`<div class="page-head"><div><div class="eyebrow">Audit</div><h1>Pohyby</h1><div class="sub">Historie je neměnný log. Každá operace vytváří nový záznam.</div></div></div><div class="table-card"><div class="table-toolbar"><input class="filter-input" placeholder="Hledat v historii…" value="${esc(state.query)}" oninput="state.query=this.value;renderMovements()"></div><div class="table-wrap"><table class="table"><thead><tr><th>ID</th><th>Datum</th><th>Typ</th><th>Pytel</th><th>Z</th><th>Do</th><th>Změna</th></tr></thead><tbody>${rows||`<tr><td colspan="7"><div class="empty">Žádné pohyby.</div></td></tr>`}</tbody></table></div></div>`}
-function setView(v){state.view=v;state.query='';render();document.getElementById('sidebar').classList.remove('open')}
-function closeDialog(){const d=document.getElementById('actionDialog');d.close();d.innerHTML=''}
-function openDialog(html){const d=document.getElementById('actionDialog');d.innerHTML=html;d.showModal()}
-function openReceive(){openDialog(`<form class="dialog-inner" onsubmit="submitReceive(event)"><div class="dialog-head"><h3>Příjem materiálu</h3><button type="button" class="icon-btn" onclick="closeDialog()">×</button></div><div class="notice">Nový pytel dostane automatické ID. Hmotnost zadávejte v gramech.</div><div class="form-grid"><div class="field"><label>Surovina</label><select name="material" required>${data.materials.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('')}</select></div><div class="field"><label>Množství [g]</label><input name="qty" type="number" min="1" step="1" placeholder="2500" required></div><div class="field"><label>Šarže</label><input name="lot" required placeholder="BA-260901"></div><div class="field"><label>Expirace</label><input name="expiry" type="date"></div><div class="field"><label>Box</label><select name="box">${data.boxes.map(b=>`<option>${b.id}</option>`).join('')}</select></div><div class="field"><label>Pozice</label><select name="position">${data.positions.map(p=>`<option>${p.id}</option>`).join('')}</select></div><div class="field full"><label>Stav balení</label><select name="packState"><option value="original">Originál balení</option><option value="opened">Otevřený</option></select></div></div><div class="dialog-actions"><button type="button" class="ghost-btn" onclick="closeDialog()">Zrušit</button><button class="primary-btn">Uložit příjem</button></div></form>`)}
-function submitReceive(e){e.preventDefault();const f=new FormData(e.target),next=String(data.packs.length+1).padStart(3,'0'),id=`P-${new Date().getFullYear()}-${next}`,received=new Date().toISOString().slice(0,10),p={id,material:f.get('material'),lot:f.get('lot'),received,expiry:f.get('expiry')||'',qty:Number(f.get('qty')),box:f.get('box'),position:f.get('position'),packState:f.get('packState')};data.packs.push(p);data.movements.push({id:`M-${String(data.movements.length+1).padStart(3,'0')}`,date:new Date().toISOString(),type:'Příjem',pack:id,qty:p.qty,from:'Příjem',to:p.position});closeDialog();save();toast(`Příjem uložen · ${id}`)}
-function openIssue(id){const p=data.packs.find(x=>x.id===id);if(!p)return;openDialog(`<form class="dialog-inner" onsubmit="submitIssue(event,'${id}')"><div class="dialog-head"><h3>Výdej · ${id}</h3><button type="button" class="icon-btn" onclick="closeDialog()">×</button></div><div class="notice">FIFO doporučení: tento pytel je v pořadí ${fifoRank(p)} pro ${materialName(p.material)}.</div><div class="form-grid"><div class="field"><label>Dostupné [g]</label><input value="${p.qty}" disabled></div><div class="field"><label>Výdej [g]</label><input name="qty" type="number" min="1" max="${p.qty}" value="${Math.min(500,p.qty)}" required></div></div><div class="dialog-actions"><button type="button" class="ghost-btn" onclick="closeDialog()">Zrušit</button><button class="primary-btn">Potvrdit výdej</button></div></form>`)}
-function fifoRank(p){return data.packs.filter(x=>x.material===p.material&&x.qty>0).sort((a,b)=>a.received.localeCompare(b.received)).findIndex(x=>x.id===p.id)+1}
-function submitIssue(e,id){e.preventDefault();const p=data.packs.find(x=>x.id===id),qty=Number(new FormData(e.target).get('qty'));if(!p||qty<=0||qty>p.qty)return;const old=p.position;p.qty-=qty;p.packState='opened';data.movements.push({id:`M-${String(data.movements.length+1).padStart(3,'0')}`,date:new Date().toISOString(),type:'Výdej',pack:id,qty:-qty,from:old,to:'Výdej'});closeDialog();save();toast(`Výdej ${money(qty)} g · ${id}`)}
-function openMove(id){const p=data.packs.find(x=>x.id===id);if(!p)return;openDialog(`<form class="dialog-inner" onsubmit="submitMove(event,'${id}')"><div class="dialog-head"><h3>Přesun · ${id}</h3><button type="button" class="icon-btn" onclick="closeDialog()">×</button></div><div class="form-grid"><div class="field"><label>Aktuální pozice</label><input value="${p.position}" disabled></div><div class="field"><label>Nová pozice</label><select name="position">${data.positions.map(x=>`<option ${x.id===p.position?'disabled':''}>${x.id}</option>`).join('')}</select></div><div class="field full"><label>Box</label><select name="box">${data.boxes.map(b=>`<option ${b.id===p.box?'selected':''}>${b.id}</option>`).join('')}</select></div></div><div class="dialog-actions"><button type="button" class="ghost-btn" onclick="closeDialog()">Zrušit</button><button class="primary-btn">Potvrdit přesun</button></div></form>`)}
-function submitMove(e,id){e.preventDefault();const p=data.packs.find(x=>x.id===id),f=new FormData(e.target),from=p.position;p.position=f.get('position');p.box=f.get('box');data.movements.push({id:`M-${String(data.movements.length+1).padStart(3,'0')}`,date:new Date().toISOString(),type:'Přesun',pack:id,qty:0,from,to:p.position});closeDialog();save();toast(`Přesunuto · ${id}`)}
-function openMaterial(){openDialog(`<form class="dialog-inner" onsubmit="submitMaterial(event)"><div class="dialog-head"><h3>Nová surovina</h3><button type="button" class="icon-btn" onclick="closeDialog()">×</button></div><div class="form-grid"><div class="field"><label>Název</label><input name="name" required></div><div class="field"><label>Minimální zásoba [g]</label><input name="min" type="number" min="0" value="3000" required></div></div><div class="dialog-actions"><button type="button" class="ghost-btn" onclick="closeDialog()">Zrušit</button><button class="primary-btn">Přidat</button></div></form>`)}
-function submitMaterial(e){e.preventDefault();const f=new FormData(e.target),id=`S-${String(data.materials.length+1).padStart(3,'0')}`;data.materials.push({id,name:f.get('name'),unit:'g',min:Number(f.get('min'))});closeDialog();save();toast(`Surovina přidána · ${f.get('name')}`)}
-function toXlsx(){if(!window.XLSX){toast('Knihovna XLSX není dostupná',true);return}const wb=XLSX.utils.book_new(),sheets={suroviny:data.materials.map(m=>({ID:m.id,Název:m.name,Jednotka:m.unit,Minimum_g:m.min})),pytle:data.packs.map(p=>({ID:p.id,SurovinaID:p.material,Šarže:p.lot,Příjem:p.received,Expirace:p.expiry,Množství_g:p.qty,Box:p.box,Pozice:p.position,Stav:p.packState})),box:data.boxes.map(b=>({BoxID:b.id})),pozice:data.positions.map(p=>({Pozice:p.id,Obsazeno:data.packs.filter(x=>x.position===p.id&&x.qty>0).length})),pohyby:data.movements.map(m=>({ID:m.id,Datum:m.date,Typ:m.type,Pytel:m.pack,Z:m.from,Do:m.to,Změna_g:m.qty}))};for(const[name,rows]of Object.entries(sheets))XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),name);XLSX.writeFile(wb,`botanic-sklad-${new Date().toISOString().slice(0,10)}.xlsx`);toast('Export XLSX hotový')}
-function fromXlsx(file){if(!window.XLSX){toast('Knihovna XLSX není dostupná',true);return}const reader=new FileReader();reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array'}),get=n=>wb.Sheets[n]?XLSX.utils.sheet_to_json(wb.Sheets[n]):[],mats=get('suroviny'),packs=get('pytle');if(mats.length)data.materials=mats.map(r=>({id:String(r.ID||r.id),name:String(r.Název||r.name),unit:String(r.Jednotka||'g'),min:Number(r.Minimum_g||r.minimum||0)})).filter(x=>x.id&&x.name);if(packs.length)data.packs=packs.map(r=>({id:String(r.ID),material:String(r.SurovinaID||r.material),lot:String(r.Šarže||''),received:String(r.Příjem||''),expiry:String(r.Expirace||''),qty:Number(r.Množství_g||0),box:String(r.Box||''),position:String(r.Pozice||''),packState:String(r.Stav||'original')})).filter(x=>x.id&&x.material);save();toast('Import XLSX dokončen')}catch(err){toast('Import se nepodařil',true);console.error(err)}};reader.readAsArrayBuffer(file)}
-function openSlot(pos){const packs=data.packs.filter(p=>p.position===pos&&p.qty>0);openDialog(`<div class="dialog-inner"><div class="dialog-head"><h3>Pozice ${esc(pos)}</h3><button class="icon-btn" onclick="closeDialog()">×</button></div>${packs.map(p=>`<div class="card" style="margin-bottom:8px"><div style="display:flex;justify-content:space-between"><strong>${p.id}</strong><span class="mono">${money(p.qty)} g</span></div><div class="sub">${materialName(p.material)} · ${p.lot} · ${p.box}</div><div class="actions" style="margin-top:10px"><button class="mini-btn" onclick="openIssue('${p.id}')">Výdej</button><button class="mini-btn" onclick="openMove('${p.id}')">Přesun</button></div></div>`).join('')}</div>`)}
-window.setView=setView;window.renderInventory=renderInventory;window.renderMovements=renderMovements;window.state=state;window.openReceive=openReceive;window.openIssue=openIssue;window.openMove=openMove;window.closeDialog=closeDialog;window.openSlot=openSlot;window.openMaterial=openMaterial;
-document.querySelectorAll('.nav-item[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
-document.getElementById('globalSearch').addEventListener('input',e=>{state.query=e.target.value;if(state.view==='inventory')renderInventory();else if(state.view==='movements')renderMovements()});document.getElementById('quickReceive').addEventListener('click',openReceive);document.getElementById('refreshBtn').addEventListener('click',()=>{render();toast('Přehled přepočítán')});document.getElementById('btnExport').addEventListener('click',toXlsx);document.getElementById('btnImport').addEventListener('click',()=>document.getElementById('fileInput').click());document.getElementById('fileInput').addEventListener('change',e=>e.target.files[0]&&fromXlsx(e.target.files[0]));document.getElementById('btnReset').addEventListener('click',()=>{if(confirm('Obnovit demo data? Lokální změny budou ztraceny.')){data=structuredClone(seed);save();toast('Demo data obnovena')}});document.getElementById('menuToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
-if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-render();
+
+function deepClone(value) { return JSON.parse(JSON.stringify(value)); }
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return deepClone(seed);
+    const parsed = JSON.parse(raw);
+    return normalize(parsed);
+  } catch {
+    return deepClone(seed);
+  }
+}
+function normalize(input) {
+  const d = input && typeof input === 'object' ? input : deepClone(seed);
+  d.meta ??= { schemaVersion: 2, nextPack: 1, nextMovement: 1 };
+  d.materials ??= [];
+  d.boxes ??= [];
+  d.positions ??= [];
+  d.packs ??= [];
+  d.movements ??= [];
+  for (const p of d.packs) {
+    p.initialQty = Number.isFinite(p.initialQty) ? p.initialQty : Math.max(0, Number(p.qty) || 0);
+    p.qty = Math.max(0, Number(p.qty) || 0);
+  }
+  return d;
+}
+function queueLoad() { try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch { return []; } }
+function queueSave(q) { localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); }
+function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); render(); }
+function money(n) { return new Intl.NumberFormat('cs-CZ', { maximumFractionDigits: 0 }).format(Number(n) || 0); }
+function dateTime(v) { return new Intl.DateTimeFormat('cs-CZ', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(v)); }
+function todayISO() { return new Date().toISOString().slice(0, 10); }
+function material(id) { return data.materials.find(m => m.id === id); }
+function materialName(id) { return material(id)?.name || id; }
+function activePacks() { return data.packs.filter(p => p.qty > 0); }
+function stock() { return activePacks().reduce((s, p) => s + p.qty, 0); }
+function stockByMaterial(id) { return activePacks().filter(p => p.material === id).reduce((s, p) => s + p.qty, 0); }
+function daysToExpiry(p) { return p.expiry ? Math.ceil((new Date(`${p.expiry}T23:59:59`) - Date.now()) / 86400000) : Infinity; }
+function statusForPack(p) {
+  if (p.qty <= 0) return ['VYČERPÁNO', 'danger'];
+  if (daysToExpiry(p) < 0) return ['EXPIRACE', 'danger'];
+  if (daysToExpiry(p) <= 30) return ['BRZY EXPIRUJE', 'warn'];
+  const min = Math.max(500, Number(material(p.material)?.min || 0) * 0.1);
+  if (p.qty < min) return ['NÍZKÁ', 'warn'];
+  return ['OK', 'ok'];
+}
+function esc(s) { return String(s ?? '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
+function toast(msg, error = false) {
+  const el = document.createElement('div'); el.className = `toast${error ? ' error' : ''}`; el.textContent = msg;
+  document.getElementById('toastStack').appendChild(el); setTimeout(() => el.remove(), 2600);
+}
+function invariantCheck() {
+  const errors = [];
+  const packIds = new Set();
+  for (const p of data.packs) {
+    if (packIds.has(p.id)) errors.push(`Duplicitní ID pytle: ${p.id}`);
+    packIds.add(p.id);
+    if (!material(p.material)) errors.push(`Pytel ${p.id} odkazuje na neexistující surovinu.`);
+    if (p.qty < 0 || p.initialQty < 0 || p.qty > p.initialQty) errors.push(`Neplatné množství pytle ${p.id}.`);
+    if (!data.boxes.some(b => b.id === p.box)) errors.push(`Neplatný box ${p.box} u ${p.id}.`);
+    if (!data.positions.some(x => x.id === p.position)) errors.push(`Neplatná pozice ${p.position} u ${p.id}.`);
+  }
+  return errors;
+}
+function ensureValid() { const errors = invariantCheck(); if (errors.length) throw new Error(errors[0]); }
+function nextId(prefix, counterKey, width = 3) { const n = Number(data.meta[counterKey] || 1); data.meta[counterKey] = n + 1; return `${prefix}-${String(n).padStart(width, '0')}`; }
+function recordMovement({ type, pack, qty = 0, from, to, reason }) {
+  data.movements.push({ id: nextId('M', 'nextMovement'), date: new Date().toISOString(), type, pack, qty, from, to, reason, user: 'local' });
+}
+function saveMutation(description) {
+  try {
+    ensureValid();
+    persist();
+    const q = queueLoad(); q.push({ id: crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`, at: new Date().toISOString(), description, entityVersion: data.meta.schemaVersion }); queueSave(q);
+  } catch (e) { toast(e.message || 'Operace selhala.', true); }
+}
+function setView(view) { state.view = view; render(); document.getElementById('sidebar')?.classList.remove('open'); }
+window.setView = setView;
+function render() {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const active = document.getElementById(`view-${state.view}`); if (active) active.classList.add('active');
+  document.querySelectorAll('.nav-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === state.view));
+  ({ dashboard: renderDashboard, inventory: renderInventory, materials: renderMaterials, warehouse: renderWarehouse, movements: renderMovements }[state.view] || renderDashboard)();
+}
+function recentMovements(limit = 8) { return [...data.movements].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, limit); }
+function renderDashboard() {
+  const low = activePacks().filter(p => ['NÍZKÁ', 'BRZY EXPIRUJE', 'EXPIRACE'].includes(statusForPack(p)[0])).length;
+  const queued = queueLoad().length;
+  document.getElementById('view-dashboard').innerHTML = `<div class="page-head"><div><div class="eyebrow">Botanic WMS / Přehled</div><h1>Sklad pod kontrolou.</h1><div class="sub">Pytle jsou primární jednotka. Všechna množství jsou vedena v gramech.</div></div><div class="head-actions"><button class="ghost-btn" onclick="setView('warehouse')">Mapa skladu</button><button class="primary-btn" onclick="openReceive()">＋ Příjem materiálu</button></div></div>
+  <div class="kpis"><div class="kpi"><div class="kpi-label">Aktuální zásoba</div><div class="kpi-value mono">${money(stock())} g</div><div class="kpi-foot">${money(stock() / 1000)} kg celkem</div></div><div class="kpi"><div class="kpi-label">Aktivní pytle</div><div class="kpi-value">${activePacks().length}</div><div class="kpi-foot">${low} vyžaduje pozornost</div></div><div class="kpi"><div class="kpi-label">Suroviny</div><div class="kpi-value">${data.materials.length}</div><div class="kpi-foot">${data.positions.length} pozic skladu</div></div><div class="kpi"><div class="kpi-label">Dnešní pohyby</div><div class="kpi-value">${data.movements.filter(m => m.date.slice(0, 10) === todayISO()).length}</div><div class="kpi-foot">${queued ? `${queued} čeká na synchronizaci` : 'fronta synchronizace prázdná'}</div></div></div>
+  <div class="grid-2"><div class="card"><div class="card-head"><strong>Zásoba podle suroviny</strong><small>${money(stock())} g</small></div>${data.materials.map(m => { const q = stockByMaterial(m.id), max = Math.max(m.min * 2, 1), pct = Math.min(100, q / max * 100); return `<div style="margin:0 0 15px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px"><span>${esc(m.name)}</span><span class="mono">${money(q)} g</span></div><div class="progress"><span style="width:${pct}%"></span></div><div style="display:flex;justify-content:space-between;color:#68736c;font-size:10px;margin-top:4px"><span>minimum ${money(m.min)} g</span><span>${q < m.min ? 'doplnit' : ''}</span></div></div>`; }).join('')}</div>
+  <div class="card"><div class="card-head"><strong>Poslední pohyby</strong><button class="ghost-btn" onclick="setView('movements')">Vše</button></div><div class="timeline">${recentMovements(7).map(movementRow).join('')}</div></div></div>`;
+}
+function movementRow(m) { const plus = m.qty > 0; return `<div class="event"><time>${dateTime(m.date)}</time><div class="event-title"><strong>${esc(m.type)}</strong> · <span class="mono">${esc(m.pack)}</span><small>${esc(m.from)} → ${esc(m.to)}</small></div><div class="qty ${plus ? 'plus' : m.qty < 0 ? 'minus' : ''}">${m.qty === 0 ? '—' : (plus ? '+' : '') + money(m.qty) + ' g'}</div></div>`; }
+function renderInventory() {
+  const q = (state.query || '').toLowerCase();
+  const packs = data.packs.filter(p => { const hay = [p.id, p.lot, p.box, p.position, materialName(p.material)].join(' ').toLowerCase(); const status = statusForPack(p)[0]; return (!q || hay.includes(q)) && (state.filters.material === 'ALL' || p.material === state.filters.material) && (state.filters.status === 'ALL' || status === state.filters.status); }).sort((a, b) => a.received.localeCompare(b.received) || a.id.localeCompare(b.id));
+  document.getElementById('view-inventory').innerHTML = `<div class="page-head"><div><div class="eyebrow">Sklad / Pytle</div><h1>Zásoby</h1><div class="sub">FIFO + FEFO: při výdeji se preferuje nejbližší expirace, při shodě starší příjem.</div></div><div class="head-actions"><button class="primary-btn" onclick="openReceive()">＋ Příjem</button></div></div><div class="table-card"><div class="table-toolbar"><input class="filter-input" placeholder="Hledat v zásobách…" value="${esc(state.query)}" oninput="state.query=this.value;renderInventory()"><select class="filter-select" onchange="state.filters.material=this.value;renderInventory()"><option value="ALL">Všechny suroviny</option>${data.materials.map(m => `<option value="${m.id}" ${state.filters.material === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select><select class="filter-select" onchange="state.filters.status=this.value;renderInventory()"><option value="ALL">Všechny stavy</option>${['OK', 'NÍZKÁ', 'BRZY EXPIRUJE', 'EXPIRACE', 'VYČERPÁNO'].map(s => `<option value="${s}" ${state.filters.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div><div class="table-wrap"><table class="table"><thead><tr><th>Pytel</th><th>Surovina</th><th>Šarže</th><th>Pozice</th><th>Balení</th><th>Expirace</th><th>Množství</th><th>Stav</th><th></th></tr></thead><tbody>${packs.length ? packs.map(inventoryRow).join('') : `<tr><td colspan="9"><div class="empty">Nic nenalezeno.</div></td></tr>`}</tbody></table></div></div>`;
+}
+function inventoryRow(p) { const [st, cl] = statusForPack(p); return `<tr><td class="mono"><strong>${esc(p.id)}</strong></td><td>${esc(materialName(p.material))}</td><td class="mono">${esc(p.lot)}</td><td><span class="badge accent">${esc(p.position)}</span> <span style="color:#6f7a72;font-size:11px">${esc(p.box)}</span></td><td>${p.packState === 'original' ? 'Originál' : 'Otevřený'}</td><td>${esc(p.expiry || '—')}</td><td class="mono"><strong>${money(p.qty)} g</strong></td><td><span class="badge ${cl}">${st}</span></td><td><div class="actions"><button class="mini-btn" onclick="openIssue('${p.id}')">Výdej</button><button class="mini-btn" onclick="openMove('${p.id}')">Přesun</button></div></td></tr>`; }
+function renderMaterials() {
+  const rows = data.materials.map(m => { const q = stockByMaterial(m.id), count = activePacks().filter(p => p.material === m.id).length; return `<tr><td class="mono"><strong>${esc(m.id)}</strong></td><td><strong>${esc(m.name)}</strong></td><td>${count}</td><td class="mono">${money(q)} g</td><td class="mono">${money(m.min)} g</td><td>${q < m.min ? '<span class="badge danger">NÍZKÁ ZÁSOBA</span>' : '<span class="badge ok">OK</span>'}</td><td><div class="progress" style="min-width:130px"><span style="width:${Math.min(100, q / Math.max(m.min, 1) * 100)}%"></span></div></td></tr>`; }).join('');
+  document.getElementById('view-materials').innerHTML = `<div class="page-head"><div><div class="eyebrow">Katalog</div><h1>Suroviny</h1><div class="sub">Centrální katalog surovin a minimálních zásob.</div></div><div class="head-actions"><button class="primary-btn" onclick="openMaterial()">＋ Surovina</button></div></div><div class="table-card"><div class="table-wrap"><table class="table"><thead><tr><th>ID</th><th>Název</th><th>Aktivní pytle</th><th>Zásoba</th><th>Minimum</th><th>Stav</th><th>Naplnění</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+function renderWarehouse() {
+  const slots = data.positions.map(pos => { const packs = activePacks().filter(p => p.position === pos.id), q = packs.reduce((s, p) => s + p.qty, 0); return `<button class="slot ${q ? 'has-stock' : 'empty-slot'}" onclick="${packs.length ? `openSlot('${pos.id}')` : `toast('Pozice ${pos.id} je volná.')`}"><span class="slot-id">${pos.id}</span>${q ? `<i class="dot"></i><strong>${money(q)} g</strong><small>${packs.length} pytle</small>` : `<small>volná pozice</small>`}</button>`; }).join('');
+  document.getElementById('view-warehouse').innerHTML = `<div class="page-head"><div><div class="eyebrow">Sklad / Mapa</div><h1>Pozice</h1><div class="sub">A1–D10 · kliknutím otevřete detail obsazené pozice.</div></div><div class="head-actions"><button class="ghost-btn" onclick="openReceive()">＋ Přidat pytel</button></div></div><div class="card"><div class="card-head"><strong>Mapa skladu</strong><small>${activePacks().length} aktivních pytlů</small></div><div class="map-grid">${slots}</div></div>`;
+}
+function renderMovements() {
+  const q = state.query.toLowerCase();
+  const rows = [...data.movements].sort((a, b) => new Date(b.date) - new Date(a.date)).filter(m => !q || [m.id, m.type, m.pack, m.from, m.to, m.reason].join(' ').toLowerCase().includes(q)).map(m => `<tr><td class="mono">${esc(m.id)}</td><td>${dateTime(m.date)}</td><td><span class="badge ${m.type === 'Výdej' ? 'danger' : m.type === 'Příjem' ? 'ok' : 'accent'}">${esc(m.type)}</span></td><td class="mono">${esc(m.pack)}</td><td>${esc(m.from)} → ${esc(m.to)}</td><td class="mono">${m.qty === 0 ? '—' : (m.qty > 0 ? '+' : '') + money(m.qty) + ' g'}</td><td>${esc(m.reason || '')}</td></tr>`).join('');
+  document.getElementById('view-movements').innerHTML = `<div class="page-head"><div><div class="eyebrow">Audit / Ledger</div><h1>Pohyby</h1><div class="sub">Append-only historie příjmů, výdejů a přesunů.</div></div></div><div class="table-card"><div class="table-toolbar"><input class="filter-input" placeholder="Hledat v pohybech…" value="${esc(state.query)}" oninput="state.query=this.value;renderMovements()"></div><div class="table-wrap"><table class="table"><thead><tr><th>ID</th><th>Čas</th><th>Typ</th><th>Pytel</th><th>Trasa</th><th>Množství</th><th>Důvod</th></tr></thead><tbody>${rows || '<tr><td colspan="7"><div class="empty">Žádné pohyby.</div></td></tr>'}</tbody></table></div></div>`;
+}
+function dialog(content) { const d = document.getElementById('actionDialog'); d.innerHTML = content; d.showModal(); }
+function closeDialog() { document.getElementById('actionDialog').close(); }
+function openReceive() {
+  dialog(`<form class="modal-form" onsubmit="submitReceive(event)"><div class="modal-head"><div><div class="eyebrow">Sklad / Příjem</div><h2>Nový pytel</h2></div><button type="button" class="icon-btn" onclick="closeDialog()">×</button></div><label>Surovina<select name="material" required>${data.materials.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join('')}</select></label><div class="form-grid"><label>Hmotnost (g)<input name="qty" type="number" min="1" step="1" required></label><label>Šarže<input name="lot" required maxlength="40"></label></div><div class="form-grid"><label>Datum příjmu<input name="received" type="date" value="${todayISO()}" required></label><label>Expirace<input name="expiry" type="date" required></label></div><div class="form-grid"><label>Box<select name="box" required>${data.boxes.map(b => `<option value="${b.id}">${b.id}</option>`).join('')}</select></label><label>Pozice<select name="position" required>${data.positions.map(p => `<option value="${p.id}">${p.id}</option>`).join('')}</select></label></div><label>Stav balení<select name="packState"><option value="original">Originál</option><option value="opened">Otevřený</option></select></label><div class="modal-actions"><button type="button" class="ghost-btn" onclick="closeDialog()">Zrušit</button><button class="primary-btn">Přijmout do skladu</button></div></form>`);
+}
+function submitReceive(e) {
+  e.preventDefault(); const f = new FormData(e.currentTarget); const qty = Number(f.get('qty')); const expiry = String(f.get('expiry')); const received = String(f.get('received'));
+  if (!qty || qty <= 0) return toast('Hmotnost musí být větší než 0 g.', true);
+  if (expiry < received) return toast('Expirace nesmí být před datem příjmu.', true);
+  const position = String(f.get('position')); if (activePacks().some(p => p.position === position && p.box === String(f.get('box')) && p.qty > 0)) return toast('Na této pozici je v tomto boxu již aktivní pytel.', true);
+  const id = nextId('P-2026', 'nextPack'); const pack = { id, material: String(f.get('material')), lot: String(f.get('lot')).trim(), received, expiry, qty, initialQty: qty, box: String(f.get('box')), position, packState: String(f.get('packState')) };
+  data.packs.push(pack); recordMovement({ type: 'Příjem', pack: id, qty, from: 'Příjem', to: position, reason: 'Příjem zásoby' }); closeDialog(); saveMutation('Příjem ' + id); toast(`Příjem ${id} zapsán.`);
+}
+window.openReceive = openReceive; window.submitReceive = submitReceive;
+function fifoCandidates(materialId) { return activePacks().filter(p => p.material === materialId).sort((a, b) => { const ea = a.expiry || '9999-12-31', eb = b.expiry || '9999-12-31'; return ea.localeCompare(eb) || a.received.localeCompare(b.received) || a.id.localeCompare(b.id); }); }
+function openIssue(packId) {
+  const p = data.packs.find(x => x.id === packId); if (!p) return;
+  const candidates = fifoCandidates(p.material); const rank = candidates.findIndex(x => x.id === p.id) + 1;
+  dialog(`<form class="modal-form" onsubmit="submitIssue(event)"><div class="modal-head"><div><div class="eyebrow">Výdej / FIFO + FEFO</div><h2>Výdej ze skladu</h2></div><button type="button" class="icon-btn" onclick="closeDialog()">×</button></div><input type="hidden" name="pack" value="${esc(p.id)}"><div class="notice"><strong>${esc(p.id)}</strong> · ${esc(materialName(p.material))}<br>aktuálně <b>${money(p.qty)} g</b> · pořadí FEFO/FIFO <b>#${rank}</b></div><label>Množství k výdeji (g)<input name="qty" type="number" min="1" max="${p.qty}" step="1" required></label><label>Důvod<input name="reason" maxlength="120" placeholder="např. výroba / odběr"></label><div class="modal-actions"><button type="button" class="ghost-btn" onclick="closeDialog()">Zrušit</button><button class="primary-btn">Potvrdit výdej</button></div></form>`);
+}
+function submitIssue(e) {
+  e.preventDefault(); const f = new FormData(e.currentTarget); const p = data.packs.find(x => x.id === String(f.get('pack'))); const qty = Number(f.get('qty')); if (!p || !Number.isInteger(qty) || qty <= 0 || qty > p.qty) return toast('Neplatné množství výdeje.', true);
+  p.qty -= qty; if (p.qty < p.initialQty) p.packState = 'opened'; const from = p.position; recordMovement({ type: 'Výdej', pack: p.id, qty: -qty, from, to: 'Výdej', reason: String(f.get('reason') || 'Výdej') }); closeDialog(); saveMutation('Výdej ' + p.id); toast(`Vydáno ${money(qty)} g z ${p.id}.`);
+}
+window.openIssue = openIssue; window.submitIssue = submitIssue;
+function openMove(packId) {
+  const p = data.packs.find(x => x.id === packId); if (!p) return;
+  dialog(`<form class="modal-form" onsubmit="submitMove(event)"><div class="modal-head"><div><div class="eyebrow">Sklad / Přesun</div><h2>${esc(p.id)}</h2></div><button type="button" class="icon-btn" onclick="closeDialog()">×</button></div><input type="hidden" name="pack" value="${esc(p.id)}"><div class="notice">Aktuální umístění: <b>${esc(p.box)} / ${esc(p.position)}</b></div><div class="form-grid"><label>Box<select name="box" required>${data.boxes.map(b => `<option value="${b.id}" ${b.id === p.box ? 'selected' : ''}>${b.id}</option>`).join('')}</select></label><label>Pozice<select name="position" required>${data.positions.map(x => `<option value="${x.id}" ${x.id === p.position ? 'selected' : ''}>${x.id}</option>`).join('')}</select></label></div><label>Důvod<input name="reason" maxlength="120" placeholder="např. optimalizace skladu"></label><div class="modal-actions"><button type="button" class="ghost-btn" onclick="closeDialog()">Zrušit</button><button class="primary-btn">Přesunout</button></div></form>`);
+}
+function submitMove(e) {
+  e.preventDefault(); const f = new FormData(e.currentTarget); const p = data.packs.find(x => x.id === String(f.get('pack'))); const box = String(f.get('box')), position = String(f.get('position')); if (!p) return;
+  if (activePacks().some(x => x.id !== p.id && x.qty > 0 && x.box === box && x.position === position)) return toast('Cílová pozice je již obsazená aktivním pytlem ve stejném boxu.', true);
+  const from = `${p.box}/${p.position}`, to = `${box}/${position}`; p.box = box; p.position = position; recordMovement({ type: 'Přesun', pack: p.id, qty: 0, from, to, reason: String(f.get('reason') || 'Změna pozice') }); closeDialog(); saveMutation('Přesun ' + p.id); toast(`${p.id} přesunut.`);
+}
+window.openMove = openMove; window.submitMove = submitMove;
+function openSlot(position) { const packs = activePacks().filter(p => p.position === position); dialog(`<div class="modal-form"><div class="modal-head"><div><div class="eyebrow">Sklad / Pozice</div><h2>${esc(position)}</h2></div><button class="icon-btn" onclick="closeDialog()">×</button></div>${packs.map(p => `<div class="notice"><strong>${esc(p.id)}</strong> · ${esc(materialName(p.material))}<br>${money(p.qty)} g · ${esc(p.box)} · šarže ${esc(p.lot)}<div class="modal-actions"><button class="mini-btn" onclick="closeDialog();openIssue('${p.id}')">Výdej</button><button class="mini-btn" onclick="closeDialog();openMove('${p.id}')">Přesun</button></div></div>`).join('')}</div>`); }
+window.openSlot = openSlot;
+function openMaterial() { dialog(`<form class="modal-form" onsubmit="submitMaterial(event)"><div class="modal-head"><div><div class="eyebrow">Katalog</div><h2>Nová surovina</h2></div><button type="button" class="icon-btn" onclick="closeDialog()">×</button></div><label>Název<input name="name" required maxlength="120"></label><label>Minimální zásoba (g)<input name="min" type="number" min="0" step="1" value="1000" required></label><div class="modal-actions"><button type="button" class="ghost-btn" onclick="closeDialog()">Zrušit</button><button class="primary-btn">Uložit</button></div></form>`); }
+function submitMaterial(e) { e.preventDefault(); const f = new FormData(e.currentTarget); const name = String(f.get('name')).trim(); const min = Number(f.get('min')); if (!name || min < 0) return toast('Neplatná surovina.', true); if (data.materials.some(m => m.name.toLowerCase() === name.toLowerCase())) return toast('Surovina již existuje.', true); const n = data.materials.length + 1; const id = `S-${String(n).padStart(3, '0')}`; data.materials.push({ id, name, unit: 'g', min }); closeDialog(); saveMutation('Nová surovina ' + id); toast('Surovina uložena.'); }
+window.openMaterial = openMaterial; window.submitMaterial = submitMaterial;
+function exportXlsx() {
+  if (typeof XLSX === 'undefined') return toast('Knihovna XLSX není dostupná.', true);
+  const wb = XLSX.utils.book_new();
+  const materialRows = [['idSur', 'Surovina'], ...data.materials.map(m => [m.id, m.name])];
+  const packRows = [['idPack', 'číslo pytle', 'obsah surovina/mix', 'počet pytlů s touto surovinou', 'šarže', 'expirace', 'hmotnost g', 'box', 'pozice', 'stav balení'], ...data.packs.map(p => [p.id, p.id.replace(/^P-/, ''), materialName(p.material), 1, p.lot, p.expiry, p.qty, p.box, p.position, p.packState === 'original' ? 'Originál' : 'Otevřený'])];
+  const stockRows = [['idSurovina', 'Surovina', 'Aktuální g', 'Minimum g'], ...data.materials.map(m => [m.id, m.name, stockByMaterial(m.id), m.min])];
+  const boxRows = [['idBox', 'Číslo boxu'], ...data.boxes.map(b => [b.id, b.id.replace(/^B-/, '')])];
+  const posRows = [['idPozice', 'pozice'], ...data.positions.map(p => [p.id, p.id])];
+  const movementRows = [['id', 'datum', 'typ', 'pytel', 'množství g', 'z', 'do', 'důvod'], ...data.movements.map(m => [m.id, m.date, m.type, m.pack, m.qty, m.from, m.to, m.reason])];
+  [['suroviny', materialRows], ['pytle', packRows], ['SKLAD', stockRows], ['box', boxRows], ['pozice', posRows], ['POHYBY_LOG', movementRows]].forEach(([name, rows]) => XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), name));
+  XLSX.writeFile(wb, `botanic-export-${todayISO()}.xlsx`); toast('XLSX export vytvořen.');
+}
+function parseExcel(workbook) {
+  const rows = name => workbook.Sheets[name] ? XLSX.utils.sheet_to_json(workbook.Sheets[name], { defval: '' }) : [];
+  const suroviny = rows('suroviny').length ? rows('suroviny') : rows('nob');
+  const pytle = rows('pytle'); const boxy = rows('box'); const pozice = rows('pozice');
+  if (suroviny.length) data.materials = suroviny.map((r, i) => ({ id: String(r.Column_2 || r.idSur || r['idSur'] || r.Column2 || `S-${String(i + 1).padStart(3, '0')}`), name: String(r.Surovina || r.surovina || '').trim(), unit: 'g', min: 0 })).filter(x => x.name);
+  if (boxy.length) data.boxes = boxy.map((r, i) => ({ id: String(r.idBox || `B-${i + 1}`) }));
+  if (pozice.length) data.positions = pozice.map((r, i) => ({ id: String(r.idPozice || r.pozice || `A${i + 1}`) })).filter(x => x.id);
+  if (!data.positions.length) data.positions = deepClone(seed.positions);
+  if (!data.boxes.length) data.boxes = deepClone(seed.boxes);
+  if (pytle.length) {
+    data.packs = pytle.map((r, i) => {
+      const rawId = String(r.idPack || `P-IMPORT-${String(i + 1).padStart(3, '0')}`);
+      const matName = String(r['obsah surovina/mix'] || r.Surovina || '').trim(); const mat = data.materials.find(m => m.name === matName) || data.materials[0];
+      return { id: rawId, material: mat?.id, lot: String(r.šarže || r.lot || 'IMPORT'), received: todayISO(), expiry: String(r.expirace || `${new Date().getFullYear() + 1}-12-31`), qty: Number(r['hmotnost g'] || r.gramy || 0), initialQty: Number(r['hmotnost g'] || r.gramy || 0), box: String(r.box || data.boxes[i % data.boxes.length].id), position: String(r.pozice || data.positions[i % data.positions.length].id), packState: 'original' };
+    }).filter(p => p.material && p.qty >= 0);
+  }
+  data.meta.nextPack = Math.max(data.meta.nextPack || 1, data.packs.length + 1);
+  saveMutation('Import XLSX');
+}
+function importXlsx(file) { const reader = new FileReader(); reader.onload = e => { try { const wb = XLSX.read(e.target.result, { type: 'array' }); parseExcel(wb); toast('XLSX import dokončen.'); } catch (err) { toast('Import se nepodařil: ' + err.message, true); } }; reader.readAsArrayBuffer(file); }
+function resetData() { if (!confirm('Resetovat lokální data na demo stav? Tato operace smaže místní změny.')) return; data = deepClone(seed); localStorage.removeItem(QUEUE_KEY); persist(); toast('Demo data obnovena.'); }
+function wire() {
+  document.querySelectorAll('.nav-item[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+  document.getElementById('quickReceive').addEventListener('click', openReceive);
+  document.getElementById('refreshBtn').addEventListener('click', () => { try { ensureValid(); render(); toast('Kontrola konzistence OK.'); } catch (e) { toast(e.message, true); } });
+  document.getElementById('globalSearch').addEventListener('input', e => { state.query = e.target.value; if (state.view !== 'inventory' && state.view !== 'movements') state.view = 'inventory'; render(); });
+  document.getElementById('menuToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+  document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileInput').click());
+  document.getElementById('btnExport').addEventListener('click', exportXlsx);
+  document.getElementById('btnReset').addEventListener('click', resetData);
+  document.getElementById('fileInput').addEventListener('change', e => { const file = e.target.files?.[0]; if (file) importXlsx(file); e.target.value = ''; });
+  window.addEventListener('online', () => { const q = queueLoad(); if (q.length) { toast(`${q.length} lokálních změn je připraveno k synchronizaci.`); } });
+}
+wire(); render();
