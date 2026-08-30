@@ -1,0 +1,104 @@
+/* Framework7 iOS adapter — keeps the WMS markup lightweight while using Framework7's native iOS design tokens. */
+:root{
+  --f7-theme-color:#007aff;
+  --f7-ios-primary:#007aff;
+  --f7-ios-primary-shade:#006fe6;
+  --f7-ios-primary-tint:#338fff;
+  --f7-ios-bg-color:#f2f2f7;
+  --f7-ios-card-bg-color:#fff;
+  --f7-ios-bars-bg-color:rgba(249,249,249,.82);
+  --f7-ios-bars-border-color:rgba(60,60,67,.18);
+  --ios-radius:16px;
+}
+
+/* Native-looking controls */
+.btn,
+.icon-btn,
+.primary,
+.ghost-btn,
+.mini-btn,
+.filter-select,
+.filter-input,
+.search,
+.search input,
+.modal-form input,
+.modal-form select,
+.count-input,
+.slot,
+.nav-item{
+  -webkit-tap-highlight-color:transparent;
+}
+
+.btn,
+.primary{
+  border-radius:12px;
+  min-height:40px;
+  transition:transform .14s ease,opacity .14s ease,background-color .14s ease,box-shadow .14s ease;
+}
+.btn.primary{
+  background:var(--f7-ios-primary);
+  border-color:var(--f7-ios-primary);
+  color:#fff;
+  box-shadow:0 1px 2px rgba(0,0,0,.08);
+}
+.btn.primary:hover{background:var(--f7-ios-primary-shade);transform:translateY(-1px)}
+.btn.primary:active{transform:scale(.98)}
+
+.ios-surface,
+.card,
+.table-card,
+.kpi,
+.dialog{
+  border-radius:var(--ios-radius);
+}
+
+/* iOS grouped-list feeling for tables/toolbars */
+.table-card{overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.05),0 8px 30px rgba(0,0,0,.05)}
+.table th{font-weight:600}
+.table tbody tr{transition:background-color .12s ease}
+.table tbody tr:active{background:rgba(0,122,255,.06)}
+
+.search:focus-within,
+.filter-input:focus,
+.filter-select:focus,
+.modal-form input:focus,
+.modal-form select:focus,
+.count-input:focus{
+  border-color:var(--f7-ios-primary);
+  box-shadow:0 0 0 3px rgba(0,122,255,.14);
+}
+
+/* iOS typography rhythm */
+.page-head h1,.kpi-value,.modal-form h2{letter-spacing:-.025em}
+.eyebrow{letter-spacing:.08em}
+
+/* iOS-style status chips */
+.badge{font-weight:600;min-height:24px}
+
+/* Light mode: use Framework7's familiar system gray surfaces */
+html[data-theme="light"]{
+  --bg:#f2f2f7;
+  --panel:#ffffff;
+  --panel2:#ffffff;
+  --line:rgba(60,60,67,.16);
+  --text:#1c1c1e;
+  --muted:#6e6e73;
+  --accent:#007aff;
+  --shadow-soft:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);
+}
+html[data-theme="light"] .primary-btn{background:#007aff;border-color:#007aff;color:#fff}
+html[data-theme="light"] .primary-btn:hover{background:#006fe6}
+html[data-theme="light"] .sidebar{background:rgba(249,249,249,.94);backdrop-filter:blur(20px)}
+html[data-theme="light"] .topbar{background:rgba(249,249,249,.82);backdrop-filter:blur(20px)}
+
+/* Respect reduced motion like native mobile UI. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+
+@media (max-width:650px){
+  .content{padding:12px}
+  .card,.table-card,.kpi{border-radius:14px}
+  .btn.primary,.primary-btn{min-height:42px}
+  .mini-btn{min-height:36px}
+}
